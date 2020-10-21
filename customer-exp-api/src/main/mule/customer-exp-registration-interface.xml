@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+    <http:listener-config name="customer-eapi-2-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8082" connectionIdleTimeout="300000" />
+    </http:listener-config>
+    <apikit:config name="customer-eapi-2-config" api="resource::270693a7-db96-4529-b2bd-34d4e58b14f0:customer-eapi:1.0.3:raml:zip:customer-eapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="customer-eapi-2-main">
+        <http:listener config-ref="customer-eapi-2-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="customer-eapi-2-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="customer-eapi-2-console">
+        <http:listener config-ref="customer-eapi-2-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="customer-eapi-2-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\users\subscription\updatesubscription\(subscriptionid):application\json:customer-eapi-2-config">
+		<flow-ref doc:name="Flow Reference" doc:id="a24919d7-e4c8-4ec5-8236-0ffebc9f0f35" name="customer-exp-modifysubscription-implementationFlow"/>
+    </flow>
+    <flow name="put:\users\updateuser\(userid):application\json:customer-eapi-2-config">
+        <flow-ref doc:name="Flow Reference" doc:id="dcfd5d7f-e48b-4aca-83e7-a2a573a54198" name="customer-exp-updatebyuserid" />
+    </flow>
+    <flow name="post:\login:application\json:customer-eapi-2-config">
+        <flow-ref doc:name="Flow Reference" doc:id="1593239f-0a42-4773-b81e-617fb85a304a" name="customer-login-flow" />
+    </flow>
+    <flow name="post:\users\registerUser:application\json:customer-eapi-2-config">
+        <flow-ref doc:name="Flow Reference" doc:id="1d5365a9-a50c-4d22-bffc-696b71ef4207" name="customer-registration-implementationFlow" />
+    </flow>
+    <flow name="post:\users\subscription:application\json:customer-eapi-2-config">
+        <flow-ref doc:name="Flow Reference" doc:id="ada93123-468a-4fec-9397-94aa58c037a4" name="customer-exp-postsubscriptiondetails" />
+    </flow>
+    <flow name="post:\users\activateuser\(userid):customer-eapi-2-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="userid">attributes.uriParams.'userid'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"user activated successfully"]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\users\deactivateuser\(userid):customer-eapi-2-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="userid">attributes.uriParams.'userid'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"user activated successfully"]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\users\changePassword:application\json:customer-eapi-2-config">
+		<flow-ref doc:name="Flow Reference" doc:id="b1aec391-f69a-4442-b4d7-89ab1138b342" name="customer-changepassword-implementationFlow"/>
+    </flow>
+    <flow name="post:\users\forgetpassword:application\json:customer-eapi-2-config">
+        <flow-ref doc:name="Flow Reference" doc:id="1f36c182-0455-4b75-ac4c-c61074eaac96" name="customer-forgetpassword-implementationFlow" />
+    </flow>
+    <flow name="get:\users\registerUser:customer-eapi-2-config">
+		<flow-ref doc:name="Flow Reference" doc:id="5b2c528e-c0c1-4cde-8642-dfa3ad200ece" name="customer-exp-get-registration"/>
+    </flow>
+    <flow name="get:\users\subscription:customer-eapi-2-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    subscriptionId: "1",
+    userId: "1",
+    source_location: "Bath",
+    destination_location: "london",
+    from_time: "10:30:00",
+    to_time: "11:00:00",
+    Advance_notify_time_min: "30:00:00",
+    updatedtimestamp: "2007-11-11 T 11:20",
+    creationtimestamp: "2007-11-09 T 11:20",
+    statustypeID: "aa"
+  }, 
+  {
+    subscriptionId: "2",
+    userId: "2",
+    source_location: "Bath",
+    destination_location: "london",
+    from_time: "10:30:00",
+    to_time: "12:00:00",
+    Advance_notify_time_min: "30:00:00",
+    updatedtimestamp: "2007-11-10 T 10:20",
+    creationtimestamp: "2007-11-09 T 11:20",
+    statustypeID: "aa"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\users\subscription\(subscriptionid):customer-eapi-2-config">
+		<flow-ref doc:name="Flow Reference" doc:id="7e822dab-d2c6-4aaf-ab2d-d3e8858904a8" name="customer-exp-getsubscriptionbyID"/>
+    </flow>
+    <flow name="get:\users\registerUser\(userid):customer-eapi-2-config">
+		<flow-ref doc:name="Flow Reference" doc:id="44e7a3b9-ab7e-4789-96c3-4a39faa38833" name="customer-exp-getregistrationbyID"/>
+    </flow>
+</mule>

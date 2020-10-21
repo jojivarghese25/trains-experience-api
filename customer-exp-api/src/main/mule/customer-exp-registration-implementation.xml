@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:identity-sapi="http://www.mulesoft.org/schema/mule/identity-sapi"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:customer-sapi="http://www.mulesoft.org/schema/mule/customer-sapi" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/customer-sapi http://www.mulesoft.org/schema/mule/customer-sapi/current/mule-customer-sapi.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/identity-sapi http://www.mulesoft.org/schema/mule/identity-sapi/current/mule-identity-sapi.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<customer-sapi:config name="Customer_SAPI_Config" doc:name="Customer SAPI Config" doc:id="25b63d49-bd22-47a2-8003-e9dce62aedad" property_host="localhost" property_port="8083" property_protocol="HTTP" property_username="root" property_password="admin" property_basePath="/api" property_responseTimeout="300000"/>
+	<http:request-config name="okta_systemapi_HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="72255ff5-1d0b-46fc-9365-ce1f474e4d11" basePath="/api" >
+		<http:request-connection host="localhost" port="8084"/>
+	</http:request-config>
+	<identity-sapi:config name="Identity_SAPI_Config" doc:name="Identity SAPI Config" doc:id="ff6c83c6-d5b5-45ff-8773-33e5491ef755" property_host="localhost" property_port="8084" property_protocol="HTTP" property_basePath="/api" property_responseTimeout="300000"/>
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="7010626e-5587-4a29-94ad-8ab1da9607ec" applicationName="customer-exp-api" applicationVersion="1.0.0-SNAPSHOT" environment="dev"/>
+	<flow name="customer-login-flow" doc:id="eeb2c1b0-47d6-4285-b820-3122d1e3b3bc" >
+		<json-logger:logger doc:name="Logger" doc:id="f0b4c2a7-c404-437d-a643-1a207b5d9aac" config-ref="JSON_Logger_Config" message="customer login process started"/>
+		<identity-sapi:create-authenticate doc:name="Create authenticate" doc:id="458ae323-cf35-468f-84bd-62674b9869dc" config-ref="Identity_SAPI_Config"/>
+		<json-logger:logger doc:name="Logger" doc:id="786a3746-6f4b-4490-bb2e-95f4a66c644a" config-ref="JSON_Logger_Config" message="login successful"/>
+	</flow>
+	<flow name="customer-exp-get-registration" doc:id="8e4871dc-81b6-4b94-989e-d0070a98b282" >
+		<json-logger:logger doc:name="Logger" doc:id="5b3a647b-eee5-4e7f-bb41-6c1b36d4b462" config-ref="JSON_Logger_Config" message="get registered users"/>
+		<customer-sapi:get-register-users doc:name="Get register users" doc:id="3078d3a3-8f07-4c2d-98d9-3a24bc1de0e6" config-ref="Customer_SAPI_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="597d2fcf-9f91-44bb-9706-0fe76ee464d8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="9e25b486-ac5f-4cf5-8d87-a917dd0706b7" message="#[payload]"/>
+	</flow>
+	<flow name="customer-exp-getregistrationbyID" doc:id="b9a29d9e-b860-4665-87bb-8ce345858ed6" >
+		<json-logger:logger doc:name="Logger" doc:id="6a974053-cbc6-439a-981a-c9b7f90a23bd" config-ref="JSON_Logger_Config" message="get registred user by ID"/>
+		<customer-sapi:get-user-by-id doc:name="Get user by ID" doc:id="d75ac152-333f-4a1e-9260-2d7cd63a36d5" config-ref="Customer_SAPI_Config" id="#[message.attributes.uriParams.userid]"/>
+		<ee:transform doc:name="Transform Message" doc:id="3b05b582-9310-4593-a785-47029ea05ac3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="customer-forgetpassword-implementationFlow" doc:id="075e5081-ee43-4d13-9c4c-7cb27198bbb2" >
+		<json-logger:logger doc:name="Logger" doc:id="2464ea73-4150-4a26-93d6-aec7e371ae9e" config-ref="JSON_Logger_Config" message="forget password flow started"/>
+		<set-variable value="#[message.payload.userId]" doc:name="user-userid" doc:id="c88f3690-a789-44b9-b1cc-f75841cbf54a" variableName="userid"/>
+		<ee:transform doc:name="okta required transformation" doc:id="6b985f60-fdbb-4fb3-9a06-2eacb21edbe9">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	userID: vars.userid,
+	password: {
+		value: payload.password
+	},
+	recovery_question: {
+		answer: payload.recovery_question
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Logger" doc:id="9df32912-a868-40df-bd77-ae6c9f6f76f2" config-ref="JSON_Logger_Config" message="okta transformation"/>
+		<identity-sapi:create-forgetpassword doc:name="useroktaforgetpassword" doc:id="b1f8acbe-5eec-437a-868a-213baf6bb311" config-ref="Identity_SAPI_Config">
+			<error-mapping sourceType="IDENTITY-SAPI:BAD_REQUEST" targetType="USER:DUPLICATE" />
+		</identity-sapi:create-forgetpassword>
+		<ee:transform doc:name="Transform Message" doc:id="440cda7b-129c-4aa6-bd97-0db3c77e3df2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Logger" doc:id="a0b64882-5afe-4779-90d8-400b2d6e3afa" config-ref="JSON_Logger_Config" message="forget password flow successful"/>
+	</flow>
+	<flow name="customer-registration-implementationFlow" doc:id="394ccc74-6732-40e0-b31c-4850f6b773bf" >
+		<set-variable value="#[message.payload.phoneNumber]" doc:name="userphonenumber" doc:id="ac83c0ec-8484-4107-ad1b-3cf537b75204" variableName="phoneNumber" />
+		<ee:transform doc:name="okta required transformation" doc:id="df9f9787-3b79-47c4-bc15-200240c4c66f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	profile: {
+		firstName: payload.firstName,
+		lastName: payload.lastName,
+		email: payload.emailId,
+		login: payload.emailId
+	},
+	credentials: {
+		password: {
+			value: payload.password
+		},
+		recoveryQuestion: {
+			question: payload.question,
+			answer: payload.answer
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Logger" doc:id="2de34659-111d-4330-aa17-7776b16b9f44" config-ref="JSON_Logger_Config" message="cutomer registration flow started"/>
+		<identity-sapi:create-createuser doc:name="Create createuser" doc:id="41077ebb-b52b-4c29-b62b-22eaa45b18b2" config-ref="Identity_SAPI_Config">
+			<error-mapping sourceType="IDENTITY-SAPI:BAD_REQUEST" targetType="USER:DUPLICATE" />
+		</identity-sapi:create-createuser>
+		<ee:transform doc:name="Transform Message" doc:id="df7ec141-673e-45d6-822e-11c135d7eb4d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	firstName: payload.profile.firstName,
+	lastName: payload.profile.lastName,
+	phoneNumber: vars.phoneNumber,
+	emailId: payload.profile.email,
+	userId: payload.id
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<customer-sapi:create-register-user doc:name="Storing in Customer system API" doc:id="d0a16a19-aaad-4f62-8770-c1d85ca4dc7d" config-ref="Customer_SAPI_Config" />
+		<json-logger:logger doc:name="Logger" doc:id="a9dc02d3-65ca-444d-8690-1532ad24aa0d" config-ref="JSON_Logger_Config" message="customer registered successfully"/>
+	</flow>
+	<flow name="customer-exp-updateuserbysubscriptionID" doc:id="046cda69-7d93-4d9d-9d97-2ab9c390e614" >
+		<json-logger:logger doc:name="Logger" doc:id="45f41a9d-1d61-4e75-a0fe-b85d82079c1c" config-ref="JSON_Logger_Config" message="Update user by id"/>
+		<customer-sapi:update-user-by-id_2 doc:name="Update user by subscriptionID" doc:id="90347d68-701c-4218-8da6-f48ef4fee622" config-ref="Customer_SAPI_Config" subcriptionid="#[1]"/>
+	</flow>
+	<flow name="customer-exp-updatebyuserid" doc:id="91a98cdc-a0de-4b03-9675-23f77c7e0cab" >
+		<json-logger:logger doc:name="Logger" doc:id="40f8622e-bf8c-4bb1-9b9e-8a47014804e3" config-ref="JSON_Logger_Config" message="update by userid"/>
+		<customer-sapi:update-user-by-id_1 doc:name="Update user by ID" doc:id="064996a3-23c6-4f51-80c5-f7871892dc5e" config-ref="Customer_SAPI_Config" id="00uopbob3nrs7TDgn4x6"/>
+		<json-logger:logger doc:name="Logger" doc:id="886bb149-b4c5-4d2d-82c4-c08a4864624e" config-ref="JSON_Logger_Config" message="user updated sucessfully"/>
+	</flow>
+	<flow name="customer-changepassword-implementationFlow" doc:id="5f8315cd-bfb9-4d2c-abd1-b0405c57a19c" >
+		<json-logger:logger doc:name="Copy_of_Logger" doc:id="d08395fe-8a98-4378-b1c4-204867f093f1" config-ref="JSON_Logger_Config" message="forget password flow started" />
+		<set-variable value="#[message.payload.userId]" doc:name="Copy_of_user-userid" doc:id="34d23ff6-9674-42fb-92e9-e4ec36f9fe23" variableName="userid" />
+		<ee:transform doc:name="Copy_of_okta required transformation" doc:id="56753dee-0da8-4af8-a01e-b152951814fa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	userID: vars.userid,
+	password: {
+		value: payload.password
+	},
+	recovery_question: {
+		answer: payload.recovery_question
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Copy_of_Logger" doc:id="11dd87b2-afa4-4d73-961f-ac94eace447d" config-ref="JSON_Logger_Config" message="okta transformation" />
+		<identity-sapi:create-forgetpassword doc:name="Copy_of_useroktaforgetpassword" doc:id="09118666-ee28-4d10-b6b0-e995791e42a7" config-ref="Identity_SAPI_Config" />
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="3ee8d4f5-9353-4481-bc03-1623b26c6853" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Copy_of_Logger" doc:id="d51bc255-3b50-452a-9c33-99e628b1415e" config-ref="JSON_Logger_Config" message="forget password flow successful" />
+	</flow>
+</mule>

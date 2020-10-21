@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<configuration doc:name="Configuration" doc:id="8b578d88-2322-4132-ab9d-b3f7d38e8b2c" defaultErrorHandler-ref="customer-exp-globalError_Handler" />
+	<error-handler name="customer-exp-globalError_Handler" doc:id="08f2d244-3311-4040-8c6b-500ac6253e1d" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6f10fa3e-1287-436f-b106-0b3c85375de6" type="USER:DUPLICATE">
+			<set-variable value="400" doc:name="Set Variable" doc:id="9f7fcb33-403d-4274-9cb8-cdb696d30ecb" variableName="httpStatus"/>
+			<set-variable value='"duplicate user"' doc:name="Set Variable" doc:id="698f13ba-ece0-4bc9-8c40-c1a01960b1eb" variableName="errormessage"/>
+			<flow-ref doc:name="Flow Reference" doc:id="79f3e2f6-64fa-470f-96b6-c44f441fe100" name="customer-errorresponse-globalFlow"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="a29a0c5e-7dc2-4599-9124-d8ceac37dacf" type="SERVER_SECURITY" >
+			<choice doc:name="Copy_of_Choice" doc:id="60654f04-5658-4aca-943c-c53a84026d24" >
+				<when expression="#[error.errorType.identifier=='UNAUTHORIZED']" >
+					<set-variable value="401" doc:name="Copy_of_Http response status" doc:id="22223f0f-5116-48dc-bf14-31fba9dd2908" variableName="httpStatus" />
+				</when>
+				<otherwise >
+					<set-variable value="403" doc:name="Copy_of_Set Variable" doc:id="e6edff8c-d63c-4599-a875-d0e85cbc4f01" variableName="httpStatus" />
+				</otherwise>
+			</choice>
+			<flow-ref doc:name="Copy_of_Flow Reference" doc:id="1285747f-7fbf-465e-954f-55210ce3ecd3" name="customer-errorresponse-globalFlow" />
+		</on-error-propagate>
+	</error-handler>
+	<flow name="customer-errorresponse-globalFlow" doc:id="0846a978-083c-44f4-9f6b-26105e0eedbd" >
+		<ee:transform doc:name="Transform Message" doc:id="11a38a5c-93ce-4234-b8e9-6bedd906e6ff" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	code: vars.httpStatus,
+	message: error.errorType.identifier,
+	description: error.description,
+	dateTime: now() as String 
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="Logger" doc:id="d00ea83f-2ce7-4dd9-bddd-143151290a28" config-ref="JSON_Logger_Config" message="error response">
+			<json-logger:content ><![CDATA[#[import modules::JSONLoggerModule output application/json ---
+{
+    payload: JSONLoggerModule::stringifyNonJSON(error) 
+}]]]></json-logger:content>
+		</json-logger:logger>
+	</flow>
+</mule>

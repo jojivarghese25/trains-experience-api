@@ -1,0 +1,10 @@
+{
+    "password": {},
+    "recovery_question": {
+        "question": "favourite destination?"
+    },
+    "provider": {
+        "type": "OKTA",
+        "name": "OKTA"
+    }
+}

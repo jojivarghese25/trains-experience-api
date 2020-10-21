@@ -1,0 +1,230 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="input_json" format="json">
+      <types:shape format="weave" example="input.json"><![CDATA[%dw 2.0
+
+type input_json = {|
+  firstName: String, 
+  lastName: String, 
+  emailId: String, 
+  password: String, 
+  phoneNumber: String, 
+  question: String, 
+  answer: String
+|} {"example": "{\\\"firstName\\\":\\\"jo\\\",\\\"lastName\\\":\\\"sham\\\",\\\"emailId\\\":\\\"joji@gmail.com\\\",\\\"password\\\":\\\"123Ajjj\\\",\\\"phoneNumber\\\":\\\"565767687\\\",\\\"question\\\":\\\"favourite toy\\\",\\\"answer\\\":\\\"teddybear\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="example_json" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+    <types:type name="oktainput_json" format="json">
+      <types:shape format="weave" example="okta_input.json"><![CDATA[%dw 2.0
+
+type oktainput_json = {|
+  profile: {|
+    firstName: String, 
+    lastName: String, 
+    email: String, 
+    login: String
+  |}, 
+  credentials: {|
+    password: {| value: String |}, 
+    recoveryQuestion: {|
+      question: String, 
+      answer: String
+    |}
+  |}
+|} {"example": "{\\\"profile\\\":{\\\"firstName\\\":\\\"Isaac\\\",\\\"lastName\\\":\\\"Brock\\\",\\\"email\\\":\\\"isaac@gmail.com\\\",\\\"login\\\":\\\"isaac@gmail.com\\\"},\\\"credentials\\\":{\\\"password\\\":{\\\"value\\\":\\\"Ajjjk12378\\\"},\\\"recoveryQuestion\\\":{\\\"question\\\":\\\"Who's a major player in the cowboy scene?\\\",\\\"answer\\\":\\\"Annie Oakley\\\"}}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="user_json" format="json">
+      <types:shape format="weave" example="userresponse.json"><![CDATA[%dw 2.0
+
+type user_json = {|
+  id: String, 
+  status: String, 
+  created: String, 
+  activated: String, 
+  statusChanged: String, 
+  lastLogin: Null, 
+  lastUpdated: String, 
+  passwordChanged: String, 
+  "type": {| id: String |}, 
+  profile: {|
+    firstName: String, 
+    lastName: String, 
+    mobilePhone: Null, 
+    secondEmail: Null, 
+    login: String, 
+    email: String
+  |}, 
+  credentials: {|
+    password: {|  |}, 
+    emails: Array<{|      value: String,       status: String,       "type": String    |}>, 
+    recovery_question: {| question: String |}, 
+    provider: {|
+      "type": String, 
+      name: String
+    |}
+  |}, 
+  "_links": {|
+    suspend: {|
+      href: String, 
+      method: String
+    |}, 
+    schema: {| href: String |}, 
+    resetPassword: {|
+      href: String, 
+      method: String
+    |}, 
+    forgotPassword: {|
+      href: String, 
+      method: String
+    |}, 
+    expirePassword: {|
+      href: String, 
+      method: String
+    |}, 
+    changeRecoveryQuestion: {|
+      href: String, 
+      method: String
+    |}, 
+    self: {| href: String |}, 
+    "type": {| href: String |}, 
+    changePassword: {|
+      href: String, 
+      method: String
+    |}, 
+    deactivate: {|
+      href: String, 
+      method: String
+    |}
+  |}
+|} {"example": "{\\\"id\\\":\\\"00uoctog2wbrgLc0o4x6\\\",\\\"status\\\":\\\"ACTIVE\\\",\\\"created\\\":\\\"2020-08-03T14:44:48.000Z\\\",\\\"activated\\\":\\\"2020-08-03T14:44:49.000Z\\\",\\\"statusChanged\\\":\\\"2020-08-03T14:44:49.000Z\\\",\\\"lastLogin\\\":null,\\\"lastUpdated\\\":\\\"2020-08-03T14:44:49.000Z\\\",\\\"passwordChanged\\\":\\\"2020-08-03T14:44:48.000Z\\\",\\\"type\\\":{\\\"id\\\":\\\"otym04f56UI7yXXn34x6\\\"},\\\"profile\\\":{\\\"firstName\\\":\\\"p\\\",\\\"lastName\\\":\\\"varghese\\\",\\\"mobilePhone\\\":null,\\\"secondEmail\\\":null,\\\"login\\\":\\\"pg1@gmail.com\\\",\\\"email\\\":\\\"pg1@gmail.com\\\"},\\\"credentials\\\":{\\\"password\\\":{},\\\"emails\\\":[{\\\"value\\\":\\\"pg1@gmail.com\\\",\\\"status\\\":\\\"VERIFIED\\\",\\\"type\\\":\\\"PRIMARY\\\"}],\\\"recovery_question\\\":{\\\"question\\\":\\\"favourite destination?\\\"},\\\"provider\\\":{\\\"type\\\":\\\"OKTA\\\",\\\"name\\\":\\\"OKTA\\\"}},\\\"_links\\\":{\\\"suspend\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/users\\/00uoctog2wbrgLc0o4x6\\/lifecycle\\/suspend\\\",\\\"method\\\":\\\"POST\\\"},\\\"schema\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/meta\\/schemas\\/user\\/oscm04f56UI7yXXn34x6\\\"},\\\"resetPassword\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/users\\/00uoctog2wbrgLc0o4x6\\/lifecycle\\/reset_password\\\",\\\"method\\\":\\\"POST\\\"},\\\"forgotPassword\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/users\\/00uoctog2wbrgLc0o4x6\\/credentials\\/forgot_password\\\",\\\"method\\\":\\\"POST\\\"},\\\"expirePassword\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/users\\/00uoctog2wbrgLc0o4x6\\/lifecycle\\/expire_password\\\",\\\"method\\\":\\\"POST\\\"},\\\"changeRecoveryQuestion\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/users\\/00uoctog2wbrgLc0o4x6\\/credentials\\/change_recovery_question\\\",\\\"method\\\":\\\"POST\\\"},\\\"self\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/users\\/00uoctog2wbrgLc0o4x6\\\"},\\\"type\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/meta\\/types\\/user\\/otym04f56UI7yXXn34x6\\\"},\\\"changePassword\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/users\\/00uoctog2wbrgLc0o4x6\\/credentials\\/change_password\\\",\\\"method\\\":\\\"POST\\\"},\\\"deactivate\\\":{\\\"href\\\":\\\"https:\\/\\/dev-536244.okta.com\\/api\\/v1\\/users\\/00uoctog2wbrgLc0o4x6\\/lifecycle\\/deactivate\\\",\\\"method\\\":\\\"POST\\\"}}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="oktaouput_json" format="json">
+      <types:shape format="weave" example="output_okta.json"><![CDATA[%dw 2.0
+
+type oktaouput_json = {|
+  id: String, 
+  status: String, 
+  created: String, 
+  activated: String, 
+  statusChanged: String, 
+  lastLogin: Null, 
+  lastUpdated: String, 
+  passwordChanged: String, 
+  "type": {| id: String |}, 
+  profile: {|
+    firstName: String, 
+    lastName: String, 
+    mobilePhone: Null, 
+    secondEmail: Null, 
+    login: String, 
+    email: String
+  |}, 
+  credentials: {|
+    password: {|  |}, 
+    emails: Array<{|      value: String,       status: String,       "type": String    |}>, 
+    recovery_question: {| question: String |}, 
+    provider: {|
+      "type": String, 
+      name: String
+    |}
+  |}
+|} {"example": "{\\\"id\\\":\\\"00uo93ccdCMNcJJCA4x6\\\",\\\"status\\\":\\\"ACTIVE\\\",\\\"created\\\":\\\"2020-08-02T11:46:19.000Z\\\",\\\"activated\\\":\\\"2020-08-02T11:46:20.000Z\\\",\\\"statusChanged\\\":\\\"2020-08-02T11:46:20.000Z\\\",\\\"lastLogin\\\":null,\\\"lastUpdated\\\":\\\"2020-08-02T11:46:20.000Z\\\",\\\"passwordChanged\\\":\\\"2020-08-02T11:46:20.000Z\\\",\\\"type\\\":{\\\"id\\\":\\\"otym04f56UI7yXXn34x6\\\"},\\\"profile\\\":{\\\"firstName\\\":\\\"molly\\\",\\\"lastName\\\":\\\"varghese\\\",\\\"mobilePhone\\\":null,\\\"secondEmail\\\":null,\\\"login\\\":\\\"molly1@gmail.com\\\",\\\"email\\\":\\\"molly1@gmail.com\\\"},\\\"credentials\\\":{\\\"password\\\":{},\\\"emails\\\":[{\\\"value\\\":\\\"molly1@gmail.com\\\",\\\"status\\\":\\\"VERIFIED\\\",\\\"type\\\":\\\"PRIMARY\\\"}],\\\"recovery_question\\\":{\\\"question\\\":\\\"favourite destination?\\\"},\\\"provider\\\":{\\\"type\\\":\\\"OKTA\\\",\\\"name\\\":\\\"OKTA\\\"}}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="forgpassinput_json" format="json">
+      <types:shape format="weave" example="forgetpassinput.json"><![CDATA[%dw 2.0
+
+type forgpassinput_json = {|
+  userId: String, 
+  password: String, 
+  recovery_question: String
+|} {"example": "{\\\"userId\\\":\\\"molly1@gmail.com\\\",\\\"password\\\":\\\"Ajjjjjjj145\\\",\\\"recovery_question\\\":\\\"favourite destination\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="forgetpassoutput_json" format="json">
+      <types:shape format="weave" example="forgetpassoutput.json"><![CDATA[%dw 2.0
+
+type forgetpassoutput_json = {|
+  password: {| value: String |}, 
+  recovery_question: {| answer: String |}
+|} {"example": "{\\\"password\\\":{\\\"value\\\":\\\"123346vbA\\\"},\\\"recovery_question\\\":{\\\"answer\\\":\\\"Annie Oakley\\\"}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="subsinput_json" format="json">
+      <types:shape format="weave" example="subscriptioninput.json"><![CDATA[%dw 2.0
+
+type subsinput_json = {|
+  userId: String, 
+  source_location: String, 
+  destination_location: String, 
+  from_time: String, 
+  to_time: String, 
+  Advance_notify_time_min: String, 
+  updatedtimestamp: String, 
+  creationtimestamp: String, 
+  statustypeID: String
+|} {"example": "{\\\"userId\\\":\\\"1\\\",\\\"source_location\\\":\\\"Bath\\\",\\\"destination_location\\\":\\\"london\\\",\\\"from_time\\\":\\\"10:30:00\\\",\\\"to_time\\\":\\\"11:00:00\\\",\\\"Advance_notify_time_min\\\":\\\"30:00:00\\\",\\\"updatedtimestamp\\\":\\\"2007-11-11 T 11:20\\\",\\\"creationtimestamp\\\":\\\"2007-11-09 T 11:20\\\",\\\"statustypeID\\\":\\\"1\\\"}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#55701e76-bba5-4830-a664-888396380972">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="user_json"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#6b985f60-fdbb-4fb3-9a06-2eacb21edbe9">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="forgpassinput_json"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="forgetpassoutput_json"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#df9f9787-3b79-47c4-bc15-200240c4c66f">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="input_json"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="oktainput_json"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#df7ec141-673e-45d6-822e-11c135d7eb4d">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="oktaouput_json"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

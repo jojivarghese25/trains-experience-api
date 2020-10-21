@@ -1,0 +1,114 @@
+#%RAML 1.0
+title: Customer EAPI
+version: v1
+securitySchemes:
+  okta: !include /resources/securityScheme.raml
+securedBy: [okta]
+traits:
+  responses: !include exchange_modules/270693a7-db96-4529-b2bd-34d4e58b14f0/errorresponse/1.0.0/errorresponse.raml
+
+types:
+  user: !include /resources/datatype/userdataType.raml
+  login: !include /resources/datatype/login-dataType.raml
+  subscription: !include resources/datatype/subscription-dataType.raml
+
+/users: 
+  /registerUser:
+    description: register the user
+    post: 
+      body:
+        application/json:
+          type: user
+          examples: !include resources/example/user-example.raml
+      responses:
+        200:
+          body:
+            application/json:
+              example: user registered successfully 
+      is: [responses]
+    
+  /updateuser:
+    description: update the user
+    /{userid}:
+      put: 
+        
+        body:
+          application/json:
+            type: user
+            examples: !include resources/example/user-id-example .raml
+        responses:
+          200:
+            body:
+              application/json:
+                example: user updated successfully
+        is: [responses] 
+  /activateuser:
+    description: activate the user
+    /{userid}:
+      post: 
+        responses:
+          200:
+            body:
+              application/json:
+                example: user activated successfully
+        is: [responses] 
+  /deactivateuser:
+    description: activate the user
+    /{userid}:
+      post: 
+        responses:
+          200:
+            body:
+              application/json:
+                example: user activated successfully
+        is: [responses] 
+  /subscription:
+    description: to subscribe for the train
+    post:
+      body:
+        application/json:
+          description: subscription details
+          type: subscription[]
+          examples: !include /resources/example/subscription-noid-example.raml
+      responses:
+        200:
+          body:
+            application/json:
+              example: train subscribed successfully
+      is: [responses]
+    /updatesubscription:
+      /{subscriptionid}:
+        put:
+          body:
+            application/json:
+              type: subscription[]
+              examples: !include /resources/example/subscription-example.raml
+          responses:
+            200:
+              body:
+                application/json:
+                  example: subscription updated successfully
+          is: [responses]
+/login:
+      description: login the application
+      post:
+        body:
+          application/json:
+            type: login
+            examples: !include resources/example/login-example.raml
+        responses:
+          200:
+            body:
+              application/json:
+                example: user logged in successfully
+        is: [responses]
+                  
+              
+
+      
+
+
+              
+  
+
+          

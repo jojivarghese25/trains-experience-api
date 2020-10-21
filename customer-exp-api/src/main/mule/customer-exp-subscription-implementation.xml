@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:customer-sapi="http://www.mulesoft.org/schema/mule/customer-sapi"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/customer-sapi http://www.mulesoft.org/schema/mule/customer-sapi/current/mule-customer-sapi.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="customer-exp-postsubscriptiondetails" doc:id="a3a41f64-74fb-4f48-a4b2-5220ec702f45" >
+		<json-logger:logger doc:name="Logger" doc:id="9549868a-4a7c-4795-ba98-c8dc3504c265" config-ref="JSON_Logger_Config" message="add subscription entries"/>
+		<customer-sapi:create-subscription doc:name="Create subscription" doc:id="a67fdce7-a20d-42b2-9a7a-5978666d6216" config-ref="Customer_SAPI_Config"/>
+	</flow>
+	<flow name="customer-exp-modifysubscription-implementationFlow" doc:id="37114e18-5372-4ea0-bcc1-5f455335e77d" >
+		<json-logger:logger doc:name="Logger" doc:id="5611ebb2-af76-47d9-823c-f35112b6b42a" config-ref="JSON_Logger_Config" message="flow of Subscription by ID started"/>
+		<set-variable value="#[message.attributes.subscriptionid]" doc:name="Set Variable" doc:id="5241e136-bc75-4c36-a99a-d2c632f7147e" variableName="subscriptionid"/>
+		<customer-sapi:update-user-by-id_2 doc:name="Update user by ID" doc:id="7ef59a75-ac6a-478a-9fcf-890522e37c84" config-ref="Customer_SAPI_Config" subcriptionid="vars.subscriptionid"/>
+	</flow>
+	<flow name="customer-exp-getsubscriptionbyID" doc:id="34ce1b31-cf27-4050-a7b2-da4130f777c7" >
+		<json-logger:logger doc:name="Logger" doc:id="df3fcd8c-200a-426a-be95-598055e8e4dd" config-ref="JSON_Logger_Config" message="Get subscribed users by ID"/>
+		<set-variable value="#[message.attributes.subscriptionid]" doc:name="Set Variable" doc:id="3ad763bc-2577-4d88-afb0-c3210f8510d2" variableName="subscriptionid"/>
+		<customer-sapi:get-subscribeduser-by-id doc:name="Get subscribeduser by ID" doc:id="7bb17f4b-a42d-4101-9963-236e519c0019" config-ref="Customer_SAPI_Config" subcriptionid="#[vars.subscriptionid]"/>
+	</flow>
+</mule>
